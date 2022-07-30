@@ -1,7 +1,8 @@
 
 import TelegramApi from 'node-telegram-bot-api';
 import Game from './game/game.js';
-import { token } from './token.js';
+
+const token = '5382301897:AAEG5XJxVSH1G7IZjRkBA6AxrEd1NSlH9T8';
 
 const bot = new TelegramApi(token, { polling: true });
 
