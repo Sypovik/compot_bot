@@ -7,6 +7,21 @@ export default class Game {
         this.win = winCombinations;
     }
 
+    checkDraw() {
+        let flag = 0;
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (this.plot[i][j] == 0) {
+
+                    flag = 1;
+                    break;
+                }
+            }
+            if (flag) break;
+        }
+        return !flag;
+    }
+
     userTry(i, j) {
         let flag = false;
         if (this.plot[i][j] == 0) {
@@ -116,14 +131,3 @@ export default class Game {
         return flag;
     }
 }
-
-let str = '1 2';
-let i = Number(str[0]);
-let j = Number(str[2]);
-let game = new Game;
-game.userTry(i, j);
-// game.botTry();
-// game.botTry();
-// game.botTry();
-game.graf();
-console.log(game.grafika);

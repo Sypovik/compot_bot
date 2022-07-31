@@ -1,10 +1,10 @@
 
+process.env.NTBA_FIX_319 = 1;
 import TelegramApi from 'node-telegram-bot-api';
 import Game from './game/game.js';
+import 'dotenv/config'
 
-const token = '5382301897:AAEG5XJxVSH1G7IZjRkBA6AxrEd1NSlH9T8';
-
-const bot = new TelegramApi(token, { polling: true });
+const bot = new TelegramApi(process.env.TOKEN, { polling: true });
 
 let checkWin = async (chatId, game) => {
     let flag = 1;
@@ -12,15 +12,6 @@ let checkWin = async (chatId, game) => {
         switch (game.check()) {
             case -1:
                 game.graf();
-                const gameOptions = {
-                    reply_markup: JSON.stringify({
-                        inline_keyboard: [
-                            [
-                                { text: "заново", callback_data: '0 0' },
-                            ]
-                        ]
-                    })
-                }
                 await bot.sendMessage(chatId, `вы победили\n${game.graf_string()}\n/game`);
                 break;
             case 1:
@@ -31,7 +22,7 @@ let checkWin = async (chatId, game) => {
                 flag = 0;
                 break;
         }
-        console.log(flag);
+
         return flag;
     } catch (err) {
         console.log(err);
@@ -60,6 +51,7 @@ const outputPlot = async (chatId, game, text) => {
             ]
         })
     }
+    game.graf();
     await bot.sendMessage(chatId, text, gameOptions);
 }
 
@@ -78,20 +70,22 @@ const start = () => {
         const j = Number(data[2]);
 
         if (game.userTry(i, j)) {
-            console.log("занято");
             await outputPlot(chatId, game, "занято");
             return;
         }
-        // console.log("checkWin(chatId, game) = " + await checkWin(chatId, game));
         if (await checkWin(chatId, game) == 1) {
-            console.log("checkWin1");
             game.plot = game.zero2d(3, 3);
             return;
         }
         game.botTry();
 
         if (await checkWin(chatId, game) == 1) {
-            console.log("checkWin1");
+            game.plot = game.zero2d(3, 3);
+            return;
+        }
+        if (game.checkDraw()) {
+            game.graf();
+            await bot.sendMessage(chatId, `Ничья\n${game.graf_string()}\n/game`);
             game.plot = game.zero2d(3, 3);
             return;
         }
@@ -112,8 +106,6 @@ const start = () => {
             await outputPlot(chatId, game, "Ходите 'O'");
             return;
         }
-
-        // await bot.sendMessage(chatId, `текст: ${text}\nимя: ${msg.from.first_name}`);
     });
 }
 
