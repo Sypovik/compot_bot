@@ -75,7 +75,7 @@ const ticTac = async (chatId, data, game) => {
             game.plot_bot = game.zero2d(3, 3);
             return;
         }
-        
+
         game.botStep();
         if (await checkWin(chatId, game)) {
             game.plot = game.zero2d(3, 3);
@@ -108,8 +108,8 @@ const start = async () => {
         bot.on('message', async msg => {
             const text = msg.text;
             const chatId = msg.chat.id;
-
-            if (text == '/game') {
+            const nameBot = (await bot.getMe()).username;
+            if (text == '/game' || text == `/game@${nameBot}`) {
                 game = new Game;
                 game.botStep();
                 await outputPlot(chatId, game, "Ходите O");
