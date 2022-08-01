@@ -7,7 +7,7 @@ import 'dotenv/config'
 const bot = new TelegramApi(process.env.TOKEN, { polling: true });
 
 let checkWin = async (chatId, game) => {
-    let flag = 1;
+    let flag = true;
     try {
         switch (game.check()) {
             case 'user':
@@ -20,7 +20,7 @@ let checkWin = async (chatId, game) => {
                 await bot.sendMessage(chatId, `Ничья\n${game.graphics_string()}\n/game`);
                 break;
             case false:
-                flag = 0;
+                flag = false;
                 break;
         }
 
@@ -69,14 +69,15 @@ const ticTac = async (chatId, data, game) => {
             await outputPlot(chatId, game, "занято");
             return;
         }
-        game.botStep();
-
-        if (await checkWin(chatId, game) == 1) {
+        if (await checkWin(chatId, game)) {
             game.plot = game.zero2d(3, 3);
+            game.plot_user = game.zero2d(3, 3);
+            game.plot_bot = game.zero2d(3, 3);
             return;
         }
-        if (game.checkDraw()) {
-            await bot.sendMessage(chatId, `Ничья\n${game.graphics_string()}\n/game`);
+        
+        game.botStep();
+        if (await checkWin(chatId, game)) {
             game.plot = game.zero2d(3, 3);
             return;
         }
