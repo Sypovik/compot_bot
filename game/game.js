@@ -3,7 +3,9 @@ import { winCombinations } from "./winCombinations.js"
 export default class Game {
     constructor() {
         this.plot = this.zero2d(3, 3);
-        this.grafika = [[], [], []];
+        this.plot_user = this.zero2d(3, 3);
+        this.plot_bot = this.zero2d(3, 3);
+        this.plot_graphics = [[], [], []];
         this.win = winCombinations;
     }
 
@@ -12,7 +14,6 @@ export default class Game {
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
                 if (this.plot[i][j] == 0) {
-
                     flag = 1;
                     break;
                 }
@@ -22,17 +23,21 @@ export default class Game {
         return !flag;
     }
 
-    userTry(i, j) {
+    userStep(i, j) {
         let flag = false;
         if (this.plot[i][j] == 0) {
             this.plot[i][j] = -1;
+            this.plot_user[i][j] = 1;
         } else {
             flag = true;
         }
+        this.graphics_update();
+
+
         return flag;
     }
 
-    botTry() {
+    botStep() {
         let flag = 1;
         while (flag) {
 
@@ -41,9 +46,11 @@ export default class Game {
 
             if (this.plot[rand_i][rand_j] == 0) {
                 this.plot[rand_i][rand_j] = 1;
+                this.plot_bot[rand_i][rand_j] = 1;
                 flag = 0;
             }
         }
+        this.graphics_update();
     }
 
     comparison(arr1, arr2) {
@@ -74,29 +81,36 @@ export default class Game {
         return arr;
     }
 
-    graf_string() {
+    graphics_string() {
         let arr = '';
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
-                arr += `${this.grafika[i][j]} `;
+
+                arr += `${this.plot_graphics[i][j] == ' '
+                    ? '#'
+                    : this.plot_graphics[i][j]} `
+
             }
+            // (i != 2)
+            //     ? arr += `\n------\n`
+            //     : 
             arr += '\n';
         }
         return arr;
     }
 
-    graf() {
+    graphics_update() {
         for (let i = 0; i < this.plot.length; i++) {
             for (let j = 0; j < this.plot[0].length; j++) {
                 switch (this.plot[i][j]) {
                     case 0:
-                        this.grafika[i][j] = ' ';
+                        this.plot_graphics[i][j] = ' ';
                         break;
                     case 1:
-                        this.grafika[i][j] = 'X';
+                        this.plot_graphics[i][j] = 'X';
                         break;
                     case -1:
-                        this.grafika[i][j] = 'O';
+                        this.plot_graphics[i][j] = 'O';
                         break;
                 }
             }
@@ -104,30 +118,18 @@ export default class Game {
     }
 
     check() {
-        let bot = this.zero2d(3, 3);
-        let user = this.zero2d(3, 3);
-        for (let i = 0; i < this.plot.length; i++) {
-            for (let j = 0; j < this.plot[0].length; j++) {
-                if (this.plot[i][j] === 1) {
-                    bot[i][j] = 1;
-                } else {
-                    if (this.plot[i][j] === -1) {
-                        user[i][j] = 1;
-                    }
-                }
-            }
-        }
-        let flag = 0;
+        let win = false;
         for (let i = 0; i < this.win.length; i++) {
-            if (this.comparison(this.win[i], user)) {
-                flag = -1;
+            if (this.comparison(this.win[i], this.plot_user)) {
+                win = 'user';
                 break;
             }
-            if (this.comparison(this.win[i], bot)) {
-                flag = 1;
+            if (this.comparison(this.win[i], this.plot_bot)) {
+                win = 'bot';
                 break;
             }
         }
-        return flag;
+        if (this.checkDraw() && !win) win = 'draw'
+        return win;
     }
 }

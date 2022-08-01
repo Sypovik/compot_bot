@@ -10,15 +10,16 @@ let checkWin = async (chatId, game) => {
     let flag = 1;
     try {
         switch (game.check()) {
-            case -1:
-                game.graf();
-                await bot.sendMessage(chatId, `вы победили\n${game.graf_string()}\n/game`);
+            case 'user':
+                await bot.sendMessage(chatId, `вы победили\n${game.graphics_string()}\n/game`);
                 break;
-            case 1:
-                game.graf();
-                await bot.sendMessage(chatId, `вы проиграли\n${game.graf_string()}\n/game`);
+            case 'bot':
+                await bot.sendMessage(chatId, `вы проиграли\n${game.graphics_string()}\n/game`);
                 break;
-            case 0:
+            case 'draw':
+                await bot.sendMessage(chatId, `Ничья\n${game.graphics_string()}\n/game`);
+                break;
+            case false:
                 flag = 0;
                 break;
         }
@@ -34,79 +35,90 @@ const outputPlot = async (chatId, game, text) => {
         reply_markup: JSON.stringify({
             inline_keyboard: [
                 [
-                    { text: game.grafika[0][0], callback_data: '0 0' },
-                    { text: game.grafika[0][1], callback_data: '0 1' },
-                    { text: game.grafika[0][2], callback_data: '0 2' },
+                    { text: game.plot_graphics[0][0], callback_data: 'ticTac 0 0' },
+                    { text: game.plot_graphics[0][1], callback_data: 'ticTac 0 1' },
+                    { text: game.plot_graphics[0][2], callback_data: 'ticTac 0 2' },
                 ],
                 [
-                    { text: game.grafika[1][0], callback_data: '1 0' },
-                    { text: game.grafika[1][1], callback_data: '1 1' },
-                    { text: game.grafika[1][2], callback_data: '1 2' },
+                    { text: game.plot_graphics[1][0], callback_data: 'ticTac 1 0' },
+                    { text: game.plot_graphics[1][1], callback_data: 'ticTac 1 1' },
+                    { text: game.plot_graphics[1][2], callback_data: 'ticTac 1 2' },
                 ],
                 [
-                    { text: game.grafika[2][0], callback_data: '2 0' },
-                    { text: game.grafika[2][1], callback_data: '2 1' },
-                    { text: game.grafika[2][2], callback_data: '2 2' },
+                    { text: game.plot_graphics[2][0], callback_data: 'ticTac 2 0' },
+                    { text: game.plot_graphics[2][1], callback_data: 'ticTac 2 1' },
+                    { text: game.plot_graphics[2][2], callback_data: 'ticTac 2 2' },
                 ],
             ]
-        })
+        }),
+        parse_mode: 'HTML',
     }
-    game.graf();
-    await bot.sendMessage(chatId, text, gameOptions);
+    try {
+        await bot.sendMessage(chatId, text, gameOptions);
+    } catch (err) {
+        console.log(err);
+    }
+
 }
 
-const start = () => {
-    let game = new Game;
-
-    bot.setMyCommands([
-        { command: '/game', description: "крестики-нолики" }
-
-    ]);
-
-    bot.on('callback_query', async msg => {
-        const data = msg.data;
-        const chatId = msg.message.chat.id;
-        const i = Number(data[0]);
-        const j = Number(data[2]);
-
-        if (game.userTry(i, j)) {
+const ticTac = async (chatId, data, game) => {
+    const i = Number(data[7]);
+    const j = Number(data[9]);
+    try {
+        if (game.userStep(i, j)) {
             await outputPlot(chatId, game, "занято");
             return;
         }
-        if (await checkWin(chatId, game) == 1) {
-            game.plot = game.zero2d(3, 3);
-            return;
-        }
-        game.botTry();
+        game.botStep();
 
         if (await checkWin(chatId, game) == 1) {
             game.plot = game.zero2d(3, 3);
             return;
         }
         if (game.checkDraw()) {
-            game.graf();
-            await bot.sendMessage(chatId, `Ничья\n${game.graf_string()}\n/game`);
+            await bot.sendMessage(chatId, `Ничья\n${game.graphics_string()}\n/game`);
             game.plot = game.zero2d(3, 3);
             return;
         }
-        game.graf();
         await outputPlot(chatId, game, "ходите О");
+    } catch (err) {
+        console.log(err);
+    }
 
+}
 
-    })
+const start = async () => {
+    let game = new Game;
+    try {
+        bot.setMyCommands([
+            { command: '/game', description: "крестики-нолики" }
 
-    bot.on('message', async msg => {
-        const text = msg.text;
-        const chatId = msg.chat.id;
+        ]);
 
-        if (text == '/game') {
-            game = new Game;
-            game.botTry();
-            game.graf();
-            await outputPlot(chatId, game, "Ходите 'O'");
-            return;
-        }
-    });
+        bot.on('callback_query', async msg => {
+            const data = msg.data;
+            const chatId = msg.message.chat.id;
+            if (data.startsWith('ticTac')) {
+                ticTac(chatId, data, game);
+            }
+
+        })
+
+        bot.on('message', async msg => {
+            const text = msg.text;
+            const chatId = msg.chat.id;
+
+            if (text == '/game') {
+                game = new Game;
+                game.botStep();
+                await outputPlot(chatId, game, "Ходите O");
+                return;
+            }
+        });
+    } catch (err) {
+        console.log(err);
+    }
+
 }
 
 start();
