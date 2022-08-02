@@ -5,6 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "test": "node data/dataIO.js",
     "dev": "nodemon index.js",
     "start": "node index.js",
     "game": "node game/game.js"

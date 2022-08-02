@@ -2,10 +2,11 @@ import { winCombinations } from "./winCombinations.js"
 
 export default class Game {
     constructor() {
-        this.plot = this.zero2d(3, 3);
-        this.plot_user = this.zero2d(3, 3);
-        this.plot_bot = this.zero2d(3, 3);
+        this.plot = this.plotZero(3, 3);
+        this.plot_user = this.plotZero(3, 3);
+        this.plot_bot = this.plotZero(3, 3);
         this.plot_graphics = [[], [], []];
+        this.graphics_update();
         this.win = winCombinations;
     }
 
@@ -70,7 +71,7 @@ export default class Game {
     }
 
 
-    zero2d(x = 0, y = 0) {
+    plotZero(x = 0, y = 0) {
         let arr = [];
         for (let i = 0; i < x; i++) {
             arr[i] = [];
