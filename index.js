@@ -19,7 +19,6 @@ const start = async () => {
             const data = msg.data;
             if (data.startsWith('ticTac')) {
                 ticTac.chatId = msg.message.chat.id;
-                console.log(ticTac.chatId);
 
                 await ticTac?.step(data);
             }
