@@ -3,8 +3,9 @@ import { winCombinations } from "./winCombinations.js"
 export default class Game {
     constructor() {
         this.plot = this.plotZero(3, 3);
-        this.plot_user = this.plotZero(3, 3);
-        this.plot_bot = this.plotZero(3, 3);
+        this.plot_user1 = this.plotZero(3, 3);
+        this.plot_user2 = this.plotZero(3, 3);
+        // this.plot_bot = this.plotZero(3, 3);
         this.plot_graphics = [[], [], []];
         this.graphics_update();
         this.win = winCombinations;
@@ -24,11 +25,17 @@ export default class Game {
         return !flag;
     }
 
-    userStep(i, j) {
+    userStep(i, j, pleer) {
         let flag = false;
         if (this.plot[i][j] == 0) {
-            this.plot[i][j] = -1;
-            this.plot_user[i][j] = 1;
+            switch (pleer) {
+                case 'O': this.plot[i][j] = -1;
+                    this.plot_user1[i][j] = 1;
+                    break;
+                case 'X': this.plot[i][j] = 1;
+                    this.plot_user2[i][j] = 1;
+                    break;
+            }
         } else {
             flag = true;
         }
@@ -47,7 +54,7 @@ export default class Game {
 
             if (this.plot[rand_i][rand_j] == 0) {
                 this.plot[rand_i][rand_j] = 1;
-                this.plot_bot[rand_i][rand_j] = 1;
+                this.plot_user2[rand_i][rand_j] = 1;
                 flag = 0;
             }
         }
@@ -121,12 +128,12 @@ export default class Game {
     check() {
         let win = false;
         for (let i = 0; i < this.win.length; i++) {
-            if (this.comparison(this.win[i], this.plot_user)) {
-                win = 'user';
+            if (this.comparison(this.win[i], this.plot_user1)) {
+                win = 'pleer1';
                 break;
             }
-            if (this.comparison(this.win[i], this.plot_bot)) {
-                win = 'bot';
+            if (this.comparison(this.win[i], this.plot_user2)) {
+                win = 'pleer2';
                 break;
             }
         }

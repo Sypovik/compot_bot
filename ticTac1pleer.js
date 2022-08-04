@@ -1,14 +1,15 @@
 import Game from "./game/game.js";
-import { read, write } from './data/dataIO.js';
+import { dataScore, dataUpdateUser, read, write } from './data/dataIO.js';
 
 export default class TicTac {
 
-    constructor(bot, msg, chatId) {
+    constructor(bot, from, chatId) {
         this.bot = bot;
-        this.msg = msg;
+        // this.msg = msg;
+        this.from = from;
         this.chatId = chatId;
         this.game = new Game;
-        this.dataUpdateUser(msg.from);
+        dataUpdateUser(from);
         // write(msg.from);
     }
 
@@ -22,20 +23,20 @@ export default class TicTac {
         let flag = true;
         try {
             switch (this.game.check()) {
-                case 'user':
-                    const score = this.dataScore(1, this.msg.from.id);
+                case 'pleer1':
+                    const score = dataScore(1, this.from.id);
                     await this.bot.sendMessage(this.chatId,
                         'вы победили'
                         + '\n' + this.game.graphics_string()
                         + '\nВаш счет:' + score
-                        + '\n/game'
+                        + '\n/game_1pleer'
                     );
                     break;
-                case 'bot':
-                    await this.bot.sendMessage(this.chatId, `вы проиграли\n${this.game.graphics_string()}\n/game`);
+                case 'pleer2':
+                    await this.bot.sendMessage(this.chatId, `вы проиграли\n${this.game.graphics_string()}\n/game_1pleer`);
                     break;
                 case 'draw':
-                    await this.bot.sendMessage(this.chatId, `Ничья\n${this.game.graphics_string()}\n/game`);
+                    await this.bot.sendMessage(this.chatId, `Ничья\n${this.game.graphics_string()}\n/game_1pleer`);
                     break;
                 case false:
                     flag = false;
@@ -79,18 +80,18 @@ export default class TicTac {
 
     }
 
-    step = async (data) => {
+    step = async (data, pleer) => {
         const i = Number(data[7]);
         const j = Number(data[9]);
         try {
-            if (this.game.userStep(i, j)) {
+            if (this.game.userStep(i, j, 'O')) {
                 await this.outputPlot("занято");
                 return;
             }
             if (await this.checkWin()) {
                 this.game.plot = this.game.plotZero(3, 3);
-                this.game.plot_user = this.game.plotZero(3, 3);
-                this.game.plot_bot = this.game.plotZero(3, 3);
+                this.game.plot_user1 = this.game.plotZero(3, 3);
+                this.game.plot_user2 = this.game.plotZero(3, 3);
                 return;
             }
 
@@ -104,31 +105,6 @@ export default class TicTac {
             console.log(err);
         }
 
-    }
-    dataUpdateUser = (user) => {
-        let flag = 0;
-        const id = user.id;
-        const data = read();
-        if (!data[id]) {
-            data[id] = {
-                first_name: user.first_name,
-                username: user.username,
-                score: 1
-            }
-            console.log(data);
-            write(data);
-        }
-
-
-    }
-
-    dataScore = (n, id) => {
-        let data = read();
-        if (data[id].score) {
-            data[id].score += n;
-            write(data);
-        }
-        return data[id].score;
     }
 
 }
