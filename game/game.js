@@ -129,15 +129,15 @@ export default class Game {
         let win = false;
         for (let i = 0; i < this.win.length; i++) {
             if (this.comparison(this.win[i], this.plot_user1)) {
-                win = 'pleer1';
+                win = 'O';
                 break;
             }
             if (this.comparison(this.win[i], this.plot_user2)) {
-                win = 'pleer2';
+                win = 'X';
                 break;
             }
         }
-        if (this.checkDraw() && !win) win = 'draw'
+        if (this.checkDraw() && !win) win = 'draw';
         return win;
     }
 }

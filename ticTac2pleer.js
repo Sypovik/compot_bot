@@ -6,8 +6,16 @@ export default class TicTac2pleer {
     constructor(bot, from, chatId) {
         this.bot = bot;
         this.pleer = {
-            "O": 0,
-            "X": 0
+            "O": {
+                id_user: 0,
+                first_name: ' ',
+                id_chat: 0
+            },
+            "X": {
+                id_user: 0,
+                first_name: ' ',
+                id_chat: 0
+            },
         };
         this.status = 0;
         this.from = from;
@@ -16,35 +24,46 @@ export default class TicTac2pleer {
         dataUpdateUser(from);
     }
 
-    start = async () => {
-        await this.outputPlot("Начало игры,\nжду 2го игрока - /game_2pleer");
-    }
+    outputResult = async (win, chatId) => {
+        if (win) {
 
+            const user = this.pleer[win];
+            console.log(user);
+            const score = dataScore(1, user.id_user);
+            await this.bot.sendMessage(chatId,
+                'победил' + user.first_name +
+                '\n\n' + this.game.graphics_string() +
+                '\nего счет:' + score +
+                '\n/game_2pleer'
+            );
+        } else {
+            await this.bot.sendMessage(chatId,
+                'ничья' +
+                '\n/game_2pleer'
+            );
+        }
+
+
+    }
 
     checkWin = async () => {
         let flag = true;
         try {
             switch (this.game.check()) {
-                case 'pleer1':
-                    const scorePleer1 = dataScore(1, this.pleer['O']);
-                    await this.bot.sendMessage(this.chatId,
-                        'победил ' + read()[this.pleer['O']].first_name +
-                        '\n' + this.game.graphics_string() +
-                        '\nВаш счет:' + scorePleer1 +
-                        '\n/game'
-                    );
+                case 'O':
+                    this.outputResult('O', this.pleer['O'].id_chat);
+                    if (this.pleer['X'].id_chat != this.pleer['O'].id_chat)
+                        this.outputResult('O', this.pleer['X'].id_chat);
                     break;
-                case 'pleer1':
-                    const scorePleer2 = dataScore(1, this.pleer['X']);
-                    await this.bot.sendMessage(this.chatId,
-                        'победил ' + read()[this.pleer['X']].first_name +
-                        '\n' + this.game.graphics_string() +
-                        '\nВаш счет:' + scorePleer2 +
-                        '\n/game'
-                    );
+                case 'X':
+                    this.outputResult('X', this.pleer['O'].id_chat);
+                    if (this.pleer['X'].id_chat != this.pleer['O'].id_chat)
+                        this.outputResult('X', this.pleer['X'].id_chat);
                     break;
                 case 'draw':
-                    await this.bot.sendMessage(this.chatId, `Ничья\n${this.game.graphics_string()}\n/game`);
+                    this.outputResult(0, this.pleer['O'].id_chat);
+                    if (this.pleer['X'].id_chat != this.pleer['O'].id_chat)
+                        this.outputResult(0, this.pleer['X'].id_chat);
                     break;
                 case false:
                     flag = false;
@@ -56,54 +75,41 @@ export default class TicTac2pleer {
             console.log(err);
         }
     }
+
+    tablo = () => {
+        const pleer = (this.status == this.pleer['X'].id_chat) ? 'X' : 'O';
+        return '______________________________\n' +
+            `игрок "O" - ${this.pleer['O'].first_name}` + `${(pleer == 'O') ? ' 👈 \n' : '\n'}` +
+            `игрок "X" - ${this.pleer['X'].first_name}` + `${(pleer == 'X') ? ' 👈 \n' : '\n'}`
+            ;
+    }
+
     outputPlot = async (text) => {
-        // let keyboard = [[]];
-        // for (let i = 0; i < 3; i++) {
-        //     for (let j = 0; j < 3; j++) {
-        //         keyboard[i].push({
-        //             text: this.game.plot_graphics[i][j], callback_data:
-        //             {
-        //                 game: 'ticTac2pleer',
-        //                 i: i, j: j,
-        //                 status: this.status
-        //             }
-        //         })
-        //     }
-        // }
+        let keyboard = [[], [], []];
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                keyboard[i].push({
+                    text: this.game.plot_graphics[i][j],
+                    callback_data:
+                        '2pleerTicTac_' +
+                        i + '_' +
+                        j + '_' +
+                        this.status + '_' +
+                        this.pleer['O'].id_chat
+                })
+            }
+        }
         const gameOptions = {
             reply_markup: JSON.stringify({
-                inline_keyboard: [
-                    // [
-                    //         {
-                    //             text: this.game.plot_graphics[0][0], callback_data:
-                    //             {
-                    //                 game: 'ticTac2pleer',
-                    //                 i: 0, j: 0,
-                    //                 status: this.status,
-                    //                 idRoom: this.pleer['O']
-                    //             }
-                    [
-                        { text: this.game.plot_graphics[0][0], callback_data: '2pleerTicTac_0_0_' + this.status + '_' + this.pleer['O'] },
-                        { text: this.game.plot_graphics[0][1], callback_data: '2pleerTicTac_0_1_' + this.status + '_' + this.pleer['O'] },
-                        { text: this.game.plot_graphics[0][2], callback_data: '2pleerTicTac_0_2_' + this.status + '_' + this.pleer['O'] },
-                    ],
-                    [
-                        { text: this.game.plot_graphics[1][0], callback_data: '2pleerTicTac_1_0_' + this.status + '_' + this.pleer['O'] },
-                        { text: this.game.plot_graphics[1][1], callback_data: '2pleerTicTac_1_1_' + this.status + '_' + this.pleer['O'] },
-                        { text: this.game.plot_graphics[1][2], callback_data: '2pleerTicTac_1_2_' + this.status + '_' + this.pleer['O'] },
-                    ],
-                    [
-                        { text: this.game.plot_graphics[2][0], callback_data: '2pleerTicTac_2_0_' + this.status + '_' + this.pleer['O'] },
-                        { text: this.game.plot_graphics[2][1], callback_data: '2pleerTicTac_2_1_' + this.status + '_' + this.pleer['O'] },
-                        { text: this.game.plot_graphics[2][2], callback_data: '2pleerTicTac_2_2_' + this.status + '_' + this.pleer['O'] },
-                    ],
-                ]
+                inline_keyboard: keyboard
             }),
             parse_mode: 'HTML',
         }
         try {
-            await this.bot.sendMessage(this.pleer['O'], text, gameOptions);
-            await this.bot.sendMessage(this.pleer['X'], text, gameOptions);
+            if (this.pleer['O'].id_chat)
+                await this.bot.sendMessage(this.pleer['O'].id_chat, text, gameOptions);
+            if (this.pleer['X'].id_chat && this.pleer['X'].id_chat != this.pleer['O'].id_chat)
+                await this.bot.sendMessage(this.pleer['X'].id_chat, text, gameOptions);
         } catch (err) {
             console.log(err);
         }
@@ -114,8 +120,8 @@ export default class TicTac2pleer {
 
     step = async ({ i, j }) => {
         try {
-            if (this.pleer['X']) {
-                let pleer = this.status == this.pleer['X'] ? 'X' : 'O';
+            if (this.pleer['X'].id_chat) {
+                let pleer = (this.status == this.pleer['X'].id_chat) ? 'X' : 'O';
                 if (this.game.userStep(i, j, pleer)) {
                     await this.outputPlot("занято");
                     return;
@@ -124,10 +130,10 @@ export default class TicTac2pleer {
                     this.game.plot = this.game.plotZero(3, 3);
                     this.game.plot_user1 = this.game.plotZero(3, 3);
                     this.game.plot_user2 = this.game.plotZero(3, 3);
-                    return;
+                    this.game.graphics_update();
                 }
-                this.status == this.pleer['X'] ? this.status = this.pleer['O'] : this.status = this.pleer['X'];
-                await this.outputPlot(`ходит ${(pleer == 'X') ? 'O' : 'X'}`);
+                this.status == this.pleer['X'].id_chat ? this.status = this.pleer['O'].id_chat : this.status = this.pleer['X'].id_chat;
+                await this.outputPlot(this.tablo());
             } else {
                 this.bot.sendMessage(this.chatId, "Добавьте 2-го игорока\n /game_2pleer");
             }
@@ -149,4 +155,36 @@ export const callback_data_object = (data) => {
     callback.status = arr[3];
     callback.idRoom = arr[4];
     return callback;
+}
+
+export const startTicTac2pleer = async (bot, { chat, from }, ticTac2pleer) => {
+    const chatId = chat.id;
+    const userId = from.id;
+    let condition = read().tic_tac_2pleer;
+    if (condition && ticTac2pleer[condition]) {
+        ticTac2pleer[condition].pleer['X'].id_chat = chatId;
+        ticTac2pleer[condition].pleer['X'].id_user = userId;
+        ticTac2pleer[condition].pleer['X'].first_name = from.first_name;
+        // let pleer = (ticTac2pleer[condition].status == ticTac2pleer[condition].pleer['X'].id_user) ? 'X' : 'O';
+        console.log(ticTac2pleer[condition].tablo());
+        await ticTac2pleer[condition].outputPlot(ticTac2pleer[condition].tablo());
+        let data = read();
+        data.tic_tac_2pleer = false;
+        write(data);
+    } else {
+        condition = chatId;
+        ticTac2pleer[condition] = new TicTac2pleer(bot, from, chatId);
+        ticTac2pleer[condition].pleer['O'].id_chat = chatId;
+        ticTac2pleer[condition].pleer['O'].id_user = userId;
+        ticTac2pleer[condition].pleer['O'].first_name = from.first_name;
+        ticTac2pleer[condition].status = chatId;
+        let data = read();
+        data.tic_tac_2pleer = condition;
+        write(data);
+        await bot.sendMessage(chatId, "<b>НАЧАЛО ИГРЫ</b>\n\n1-й игрок: " +
+            from.first_name +
+            "\nожидается 2-й игрок\n\n/game_2pleer",
+            { parse_mode: 'HTML' }
+        );
+    }
 }

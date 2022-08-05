@@ -20,7 +20,6 @@ export const dataUpdateUser = (user) => {
             first_name: user.first_name,
             username: user.username,
             score: 0,
-            pleer: 0
         }
         console.log(data);
         write(data);

@@ -4,7 +4,7 @@ import TelegramApi from 'node-telegram-bot-api';
 import 'dotenv/config'
 import TicTac from './ticTac1pleer.js';
 import { dataUpdateUser, read, write } from './data/dataIO.js';
-import TicTac2pleer, { callback_data_object } from './ticTac2pleer.js';
+import TicTac2pleer, { callback_data_object, startTicTac2pleer } from './ticTac2pleer.js';
 
 const bot = new TelegramApi(process.env.TOKEN, { polling: true });
 
@@ -34,12 +34,9 @@ const start = async () => {
 
             if (data.startsWith('2pleerTicTac')) {
                 const dataObject = callback_data_object(data);
-                console.log('dataObject.status: ' + dataObject.status);
-                console.log('chatId: ' + chatId);
+                console.log(dataObject);
                 if (dataObject.status == chatId) {
-                    // console.log(ticTac2pleer[dataObject.idRoom].game.plot);
                     if (ticTac2pleer[dataObject.idRoom]) {
-                        console.log('plot:\n' + ticTac2pleer[dataObject.idRoom].game.plot);
                         ticTac2pleer[dataObject.idRoom].chatId = chatId;
                         await ticTac2pleer[dataObject.idRoom].step(dataObject);
 
@@ -63,29 +60,8 @@ const start = async () => {
                 return;
             }
             if (text == '/game_2pleer' || text == `/game_2pleer@${nameBot}`) {
-                // dataUpdateUser(msg.from);
-                // if (read()[userId].pleer == 0) {
-                let condition = read().tic_tac_2pleer
-                if (condition && ticTac2pleer[condition]) {
-                    ticTac2pleer[condition].pleer['X'] = chatId;
-                    ticTac2pleer[condition].outputPlot(
-                        'игрок1 - ' + ticTac2pleer[condition].pleer["X"] +
-                        '\nигрк2 - ' + ticTac2pleer[condition].pleer["O"]
-                    )
-                    let data = read();
-                    data.tic_tac_2pleer = false;
-                    write(data);
-                } else {
-                    condition = chatId;
-                    ticTac2pleer[condition] = new TicTac2pleer(bot, msg.from, chatId);
-                    ticTac2pleer[condition].pleer['O'] = chatId;
-                    ticTac2pleer[condition].status = chatId;
-                    let data = read();
-                    data.tic_tac_2pleer = condition;
-                    write(data);
-                    await ticTac2pleer[condition].start();
-                }
-                // }
+
+                await startTicTac2pleer(bot, msg, ticTac2pleer);
 
             }
 
