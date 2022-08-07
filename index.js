@@ -5,12 +5,13 @@ import 'dotenv/config'
 import TicTac from './ticTac1pleer.js';
 import { dataUpdateUser, read, write } from './data/dataIO.js';
 import TicTac2pleer, { callback_data_object, startTicTac2pleer } from './ticTac2pleer.js';
+import { connection } from './connection.js';
 
 const bot = new TelegramApi(process.env.TOKEN, { polling: true });
 
 const start = async () => {
     let ticTac = {};
-    let ticTac2pleer = {};
+    let ticTac2pleer = { condition: false };
     try {
         bot.setMyCommands([
             { command: '/game_1pleer', description: "крестики-нолики" },
@@ -34,7 +35,7 @@ const start = async () => {
 
             if (data.startsWith('2pleerTicTac')) {
                 const dataObject = callback_data_object(data);
-                console.log(dataObject);
+
                 if (dataObject.status == chatId) {
                     if (ticTac2pleer[dataObject.idRoom]) {
                         ticTac2pleer[dataObject.idRoom].chatId = chatId;
