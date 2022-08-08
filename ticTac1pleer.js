@@ -23,7 +23,7 @@ export default class TicTac {
         let flag = true;
         try {
             switch (this.game.check()) {
-                case 'pleer1':
+                case 'O':
                     const score = dataScore(1, this.from.id);
                     await this.bot.sendMessage(this.chatId,
                         'вы победили'
@@ -32,7 +32,7 @@ export default class TicTac {
                         + '\n/game_1pleer'
                     );
                     break;
-                case 'pleer2':
+                case 'X':
                     await this.bot.sendMessage(this.chatId, `вы проиграли\n${this.game.graphics_string()}\n/game_1pleer`);
                     break;
                 case 'draw':
@@ -42,7 +42,6 @@ export default class TicTac {
                     flag = false;
                     break;
             }
-
             return flag;
         } catch (err) {
             console.log(err);
