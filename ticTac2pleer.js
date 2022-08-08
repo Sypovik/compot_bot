@@ -16,6 +16,7 @@ export default class TicTac2pleer {
             first_name: ' ',
             id_chat: 0
         };
+        this.step_pleer = 0;
         this.status = 0;
         this.from = from;
         this.chatId = chatId;
@@ -74,7 +75,7 @@ export default class TicTac2pleer {
     }
 
     tablo = () => {
-        const pleer = (this.status == this.pleer2.id_chat) ? 'X' : 'O';
+        const pleer = (this.step_pleer == this.pleer2.id_user) ? 'X' : 'O';
         return '______________________________\n' +
             `игрок "O" - ${this.pleer1.first_name}` + `${(pleer == 'O') ? ' 👈 \n' : '\n'}` +
             `игрок "X" - ${this.pleer2.first_name}` + `${(pleer == 'X') ? ' 👈 \n' : '\n'}`
@@ -91,8 +92,8 @@ export default class TicTac2pleer {
                         '2pleerTicTac_' +
                         i + '_' +
                         j + '_' +
-                        this.status + '_' +
-                        this.pleer1.id_chat
+                        this.step_pleer + '_' +
+                        this.chatId
                 })
             }
         }
@@ -118,7 +119,7 @@ export default class TicTac2pleer {
     step = async ({ i, j }) => {
         try {
             if (this.pleer2.id_chat) {
-                let pleer = (this.status == this.pleer2.id_chat) ? 'X' : 'O';
+                let pleer = (this.step_pleer == this.pleer2.id_chat) ? 'X' : 'O';
                 if (this.game.userStep(i, j, pleer)) {
                     await this.outputPlot("занято");
                     return;
@@ -130,7 +131,7 @@ export default class TicTac2pleer {
                     this.game.plot_user2 = this.game.plotZero(3, 3);
                     this.game.graphics_update();
                 }
-                this.status == this.pleer2.id_chat ? this.status = this.pleer1.id_chat : this.status = this.pleer2.id_chat;
+                this.step_pleer == this.pleer2.id_chat ? this.step_pleer = this.pleer1.id_user : this.step_pleer = this.pleer2.id_user;
                 await this.outputPlot(this.tablo());
             } else {
                 this.bot.sendMessage(this.chatId, "Добавьте 2-го игорока\n /game_2pleer");
@@ -150,14 +151,14 @@ export const callback_data_object = (data) => {
     callback.game = arr[0];
     callback.i = arr[1];
     callback.j = arr[2];
-    callback.status = arr[3];
+    callback.step_pleer = arr[3];
     callback.idRoom = arr[4];
     return callback;
 }
 
 export const startTicTac2pleer = async (bot, { chat, from }, ticTac2pleer) => {
-    if (connection.chat({ chat, from }, ticTac2pleer, TicTac2pleer, [bot, from, chat]) == 0) {
-        ticTac2pleer[chat.id].status = chat.id;
+    if (connection.chat({ chat, from }, ticTac2pleer, TicTac2pleer, [bot, from, chat.id]) == 0) {
+        ticTac2pleer[chat.id].step_pleer = from.id;
         await bot.sendMessage(chat.id,
             "<b>НАЧАЛО ИГРЫ</b>" +
             "\n" +

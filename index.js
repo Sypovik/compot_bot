@@ -35,14 +35,15 @@ const start = async () => {
 
             if (data.startsWith('2pleerTicTac')) {
                 const dataObject = callback_data_object(data);
-
-                if (dataObject.status == chatId) {
-                    if (ticTac2pleer[dataObject.idRoom]) {
-                        ticTac2pleer[dataObject.idRoom].chatId = chatId;
-                        await ticTac2pleer[dataObject.idRoom].step(dataObject);
-
+                // console.log(dataObject);
+                if (dataObject.idRoom == chatId) {
+                    const room = ticTac2pleer[chatId];
+                    if (room?.pleer1?.id_user == userId || room?.pleer2?.id_user == userId) {
+                        userId == room.step_pleer
+                            ? await ticTac2pleer[dataObject.idRoom].step(dataObject)
+                            : await bot.sendMessage(chatId, "ходит игрок "+ room.step_pleer)
                     } else {
-                        bot.sendMessage(chatId, "начните игру \n/game_2pleer")
+                        await bot.sendMessage(chatId, "начните игру \n/game_2pleer")
                     }
                 }
             }

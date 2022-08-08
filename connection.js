@@ -28,16 +28,14 @@ export let connection = {
         const chatId = chat.id;
         const userId = from.id;
         const first_name = from.first_name;
-        if (rooms.condition) {
-            const id_room = rooms.condition;
-            this.fill_pleer(chatId, userId, first_name, rooms[id_room].pleer2);
-            rooms.condition = false;
+        if (rooms[chatId]?.status) {
+            this.fill_pleer(chatId, userId, first_name, rooms[chatId].pleer2);
+            rooms[chatId].status = 0;
             return 1;
         } else {
-            const id_room = chatId;
-            rooms[id_room] = new Room(...ConstructParametrs);
-            this.fill_pleer(chatId, userId, first_name, rooms[id_room].pleer1);
-            rooms.condition = id_room;
+            rooms[chatId] = new Room(...ConstructParametrs);
+            this.fill_pleer(chatId, userId, first_name, rooms[chatId].pleer1);
+            rooms[chatId].status = 1;
             return 0;
         }
     },
