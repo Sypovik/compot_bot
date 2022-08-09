@@ -11,15 +11,18 @@ export let connection = {
         const chatId = chat.id;
         const userId = from.id;
         const first_name = from.first_name;
-        if (rooms.condition && rooms[id_room]) {
-            this.fill_pleer(chatId, userId, first_name, rooms[id_room].pleer2);
+        if (rooms.condition) {
+            const room_id =rooms.condition;
+            this.fill_pleer(chatId, userId, first_name, rooms[room_id].pleer2);
+            rooms[room_id].status = 0;
             rooms.condition = false;
             return 1;
         } else {
-            const id_room = chatId;
-            rooms[id_room] = new Room(...ConstructParametrs);
-            this.fill_pleer(chatId, userId, first_name, rooms[id_room].pleer1);
-            rooms.condition = id_room;
+            rooms[userId] = new Room(...ConstructParametrs);
+            this.fill_pleer(chatId, userId, first_name, rooms[userId].pleer1);
+            rooms[userId].status = 1;
+            rooms.condition = userId;
+            rooms[userId].mode = 'online';
             return 0;
         }
     },
@@ -36,6 +39,7 @@ export let connection = {
             rooms[chatId] = new Room(...ConstructParametrs);
             this.fill_pleer(chatId, userId, first_name, rooms[chatId].pleer1);
             rooms[chatId].status = 1;
+            rooms[chatId].mode = 'chat';
             return 0;
         }
     },
