@@ -28,7 +28,7 @@ export const test = async (bot, chat) => {
         }),
         parse_mode: 'HTML',
     }
-    // let text1 = '';
+    let text1 = 'test';
     // for (let k = 0; k < 1; k++) {
     //     text1 = '<b>'
     //     for (let i = 0; i < 155; i++) {
