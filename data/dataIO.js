@@ -19,7 +19,7 @@ export const dataUpdateUser = (user) => {
         data[id] = {
             first_name: user.first_name,
             username: user.username,
-            score: 0,
+            score: 1,
         }
         console.log(data);
         write(data);
