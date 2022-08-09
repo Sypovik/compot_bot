@@ -29,7 +29,7 @@ export const dataUpdateUser = (user) => {
 export const dataScore = (n, id) => {
     let data = read();
     if (data[id].score) {
-        data[id].score += n;
+        data[id].score = data[id].score + n;
         write(data);
     }
     return data[id].score;

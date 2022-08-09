@@ -21,7 +21,6 @@ export default class TicTac2pleer {
         this.from = from;
         this.chatId = chatId;
         this.game = new Game;
-        dataUpdateUser(from);
     }
 
     outputResult = async (user, chatId) => {
@@ -119,7 +118,7 @@ export default class TicTac2pleer {
     step = async ({ i, j }) => {
         try {
             if (this.pleer2.id_chat) {
-                let pleer = (this.step_pleer == this.pleer2.id_chat) ? 'X' : 'O';
+                let pleer = (this.step_pleer == this.pleer2.id_user) ? 'X' : 'O';
                 if (this.game.userStep(i, j, pleer)) {
                     await this.outputPlot("занято");
                     return;
@@ -131,7 +130,7 @@ export default class TicTac2pleer {
                     this.game.plot_user2 = this.game.plotZero(3, 3);
                     this.game.graphics_update();
                 }
-                this.step_pleer == this.pleer2.id_chat ? this.step_pleer = this.pleer1.id_user : this.step_pleer = this.pleer2.id_user;
+                this.step_pleer == this.pleer2.id_user ? this.step_pleer = this.pleer1.id_user : this.step_pleer = this.pleer2.id_user;
                 await this.outputPlot(this.tablo());
             } else {
                 this.bot.sendMessage(this.chatId, "Добавьте 2-го игорока\n /game_2pleer");
@@ -157,6 +156,7 @@ export const callback_data_object = (data) => {
 }
 
 export const startTicTac2pleer = async (bot, { chat, from }, ticTac2pleer) => {
+    dataUpdateUser(from);
     if (connection.chat({ chat, from }, ticTac2pleer, TicTac2pleer, [bot, from, chat.id]) == 0) {
         ticTac2pleer[chat.id].step_pleer = from.id;
         await bot.sendMessage(chat.id,

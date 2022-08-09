@@ -6,6 +6,7 @@ import TicTac from './ticTac1pleer.js';
 import { dataUpdateUser, read, write } from './data/dataIO.js';
 import TicTac2pleer, { callback_data_object, startTicTac2pleer } from './ticTac2pleer.js';
 import { connection } from './connection.js';
+import { test } from './test.js';
 
 const bot = new TelegramApi(process.env.TOKEN, { polling: true });
 
@@ -15,7 +16,8 @@ const start = async () => {
     try {
         bot.setMyCommands([
             { command: '/game_1pleer', description: "крестики-нолики" },
-            { command: '/game_2pleer', description: "крестики нолики на 2-их" }
+            { command: '/game_2pleer', description: "крестики нолики на 2-их" },
+            { command: '/test', description: "test" }
 
         ]);
 
@@ -65,6 +67,10 @@ const start = async () => {
 
                 await startTicTac2pleer(bot, msg, ticTac2pleer);
 
+            }
+
+            if (text == '/test' || text == `/test@${nameBot}`) {
+                test(bot,chatId);
             }
 
         });
