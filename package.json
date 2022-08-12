@@ -8,7 +8,8 @@
     "test": "node data/dataIO.js",
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "game": "node game/game.js"
+    "game": "node game/game.js",
+    "sities": "nodemon cities_game.js"
   },
   "keywords": [],
   "author": "",
